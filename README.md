@@ -1,5 +1,7 @@
 # Testing bb
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flyalls-marc%2Fbb&env=NUXT_PUBLIC_SENDMARC_URL,SENDMARC_TOKEN&envDescription=API%20Keys%20needed%20for%20the%20application)
+
 ## Setup
 
 Make sure to install dependencies:
