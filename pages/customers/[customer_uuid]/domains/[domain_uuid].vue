@@ -1,0 +1,155 @@
+<script setup>
+import {
+  totalFailing,
+  totalPassing,
+  isLowRisk,
+  isModerateRisk
+} from "~/utils/helper.js";
+
+const { params } = useRoute();
+
+const [
+  domainResult,
+  countryTotalsResult,
+  senderTotalsResult,
+  timelineResult
+] = await Promise.all([
+  useSendmarcData(`api/customers/${params.customer_uuid}/domains/${params.domain_uuid}`),
+  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/countries?start_date=2010-01-01&end_date=2026-01-01`),
+  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/senders?start_date=2010-01-01&end_date=2026-01-01`),
+  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/timeline?start_date=2010-01-01&end_date=2026-01-01`)
+]);
+
+const { data: domain } = domainResult;
+const { data: countryTotals  } = countryTotalsResult;
+const { data: senderTotals } = senderTotalsResult;
+const { data: timeline } = timelineResult;
+
+const config = useRuntimeConfig();
+</script>
+<template>
+  <div class="p-10 flex flex-col gap-8">
+    <div class="flex">
+      <router-link to="/">
+        <Button
+          label="Back"
+          size="small"
+          severity="info"
+        />
+      </router-link>
+
+    </div>
+
+    <div class="flex gap-8">
+      <Card class="w-full">
+        <template #title>
+          <div class="flex items-center justify-between">
+            Geo data
+            <Button
+              as="a"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.country.index`"
+              target="_blank"
+              rel="noopener"
+              label="docs"
+              size="small"
+            />
+          </div>
+        </template>
+        <template #content>
+          <DataTable :value="countryTotals" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]">
+            <Column header="Country" field="country_name"/>
+            <Column header="Code" field="country"/>
+            <Column header="Incidents" field="aggregates.total_incidents"/>
+          </DataTable>
+        </template>
+      </Card>
+      <Card class="w-full">
+        <template #title>
+          <div class="flex items-center justify-between">
+            Timeline
+            <Button
+              as="a"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.timeline.index`"
+              target="_blank"
+              rel="noopener"
+              label="docs"
+              size="small"
+            />
+          </div>
+        </template>
+        <template #content>
+          <DataTable :value="timeline" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]">
+            <Column header="Date" field="date"/>
+            <Column header="Total Passing">
+              <template #body="{data}">
+                {{ totalPassing(data) }}
+              </template>
+            </Column>
+            <Column header="Total Failing">
+              <template #body="{data}">
+                {{ totalFailing(data) }}
+              </template>
+            </Column>
+            <Column header="Total Forwards">
+              <template #body="{data}">
+                {{ data.total_forwards }}
+              </template>
+            </Column>
+          </DataTable>
+        </template>
+      </Card>
+    </div>
+    <div class="flex gap-8">
+      <Card class="w-full">
+        <template #title>
+          <div class="flex items-center justify-between">
+            Sender data
+            <Button
+              as="a"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.senders.index`"
+              target="_blank"
+              rel="noopener"
+              label="docs"
+              size="small"
+            />
+          </div>
+        </template>
+        <template #content>
+          <DataTable :value="senderTotals" paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]">
+            <Column header="Sender" field="sender_organization"/>
+            <Column header="Incidents" field="aggregates.total_incidents"/>
+          </DataTable>
+        </template>
+      </Card>
+      <Card class="w-full">
+        <template #title>
+          <div class="flex items-center justify-between">
+            Domain details
+            <Button
+              as="a"
+              :href="`${config.public.apiUrl}/docs/api#/operations/domains.index`"
+              target="_blank"
+              rel="noopener"
+              label="docs"
+              size="small"
+            />
+          </div>
+        </template>
+        <template #content>
+          <div class="flex flex-col">
+            <div>Domain score: {{ domain.score }}</div>
+            <div>Domain rating:  {{ Math.round(domain.score / 20) }}</div>
+          </div>
+          <div class="flex gap-1">
+            <div>Domain risk: </div>
+            <p v-if="isLowRisk(domain.score ?? 0)">Low Risk</p>
+            <p v-else-if="isModerateRisk(domain.score ?? 0)">Moderate Risk</p>
+            <p v-else>High Risk</p>
+          </div>
+        </template>
+      </Card>
+    </div>
+  </div>
+</template>
+
+
