@@ -1,11 +1,4 @@
 <script setup>
-import {
-  totalFailing,
-  totalPassing,
-  isLowRisk,
-  isModerateRisk
-} from "~/utils/helper.js";
-
 const { params } = useRoute();
 
 const [
@@ -82,12 +75,12 @@ const config = useRuntimeConfig();
             <Column header="Date" field="date"/>
             <Column header="Total Passing">
               <template #body="{data}">
-                {{ totalPassing(data) }}
+                {{ data.total_passing }}
               </template>
             </Column>
             <Column header="Total Failing">
               <template #body="{data}">
-                {{ totalFailing(data) }}
+                {{ data.total_failing }}
               </template>
             </Column>
             <Column header="Total Forwards">
@@ -137,14 +130,12 @@ const config = useRuntimeConfig();
         </template>
         <template #content>
           <div class="flex flex-col">
-            <div>Domain score: {{ domain.score }}</div>
-            <div>Domain rating:  {{ Math.round(domain.score / 20) }}</div>
+            <div>Domain score: {{ domain.score.overall_score }}</div>
+            <div>Domain rating:  {{ domain.score.overall_rating }}</div>
           </div>
           <div class="flex gap-1">
             <div>Domain risk: </div>
-            <p v-if="isLowRisk(domain.score ?? 0)">Low Risk</p>
-            <p v-else-if="isModerateRisk(domain.score ?? 0)">Moderate Risk</p>
-            <p v-else>High Risk</p>
+              {{ domain.score.overall_threat_level }}
           </div>
         </template>
       </Card>
