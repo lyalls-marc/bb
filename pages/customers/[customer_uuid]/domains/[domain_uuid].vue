@@ -33,7 +33,7 @@ const config = useRuntimeConfig();
             Geo data
             <Button
               as="a"
-              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.country.index`"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.domain.countries`"
               target="_blank"
               rel="noopener"
               label="docs"
@@ -55,7 +55,7 @@ const config = useRuntimeConfig();
             Timeline
             <Button
               as="a"
-              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.timeline.index`"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.domain.timeline`"
               target="_blank"
               rel="noopener"
               label="docs"
@@ -92,7 +92,7 @@ const config = useRuntimeConfig();
             Sender data
             <Button
               as="a"
-              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.senders.index`"
+              :href="`${config.public.apiUrl}/docs/api#/operations/statistics.domain.senders`"
               target="_blank"
               rel="noopener"
               label="docs"
