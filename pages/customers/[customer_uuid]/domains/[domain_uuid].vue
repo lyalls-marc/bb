@@ -1,38 +1,31 @@
 <script setup>
 const { params } = useRoute();
 
-const [
-  domainResult,
-  countryTotalsResult,
-  senderTotalsResult,
-  timelineResult
-] = await Promise.all([
-  useSendmarcData(`api/customers/${params.customer_uuid}/domains/${params.domain_uuid}`),
-  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/countries?start_date=2010-01-01&end_date=2026-01-01`),
-  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/senders?start_date=2010-01-01&end_date=2026-01-01`),
-  useSendmarcData(`api/statistics/domains/${params.domain_uuid}/timeline?start_date=2010-01-01&end_date=2026-01-01`)
-]);
+const statsEndpoints = {
+  domain: `api/customers/${params.customer_uuid}/domains/${params.domain_uuid}`,
+  domains: `api/customers/${params.customer_uuid}/domains`,
+  countryTotals: `api/statistics/domains/${params.domain_uuid}/countries?start_date=2010-01-01&end_date=2026-01-01`,
+  senderTotals: `api/statistics/domains/${params.domain_uuid}/senders?start_date=2010-01-01&end_date=2026-01-01`,
+  timeline: `api/statistics/domains/${params.domain_uuid}/timeline?start_date=2010-01-01&end_date=2026-01-01`
+};
 
-const { data: domain } = domainResult;
-const { data: countryTotals  } = countryTotalsResult;
-const { data: senderTotals } = senderTotalsResult;
-const { data: timeline } = timelineResult;
+const results = await Promise.all(Object.values(statsEndpoints).map(useSendmarcData));
+
+const { domain, countryTotals, senderTotals, timeline } = Object.fromEntries(
+    Object.keys(statsEndpoints).map((key, i) => [key, results[i].data])
+);
 
 const config = useRuntimeConfig();
 </script>
 <template>
   <div class="p-10 flex flex-col gap-8">
-    <div class="flex">
-      <router-link to="/">
-        <Button
-          label="Back"
-          size="small"
-          severity="info"
-        />
-      </router-link>
-
-    </div>
-
+    <router-link to="/">
+      <Button
+        label="Back"
+        size="small"
+        severity="info"
+      />
+    </router-link>
     <div class="flex gap-8">
       <Card class="w-full">
         <template #title>
@@ -132,10 +125,7 @@ const config = useRuntimeConfig();
           <div class="flex flex-col">
             <div>Domain score: {{ domain.score.overall_score }}</div>
             <div>Domain rating:  {{ domain.score.overall_rating }}</div>
-          </div>
-          <div class="flex gap-1">
-            <div>Domain risk: </div>
-              {{ domain.score.overall_threat_level }}
+            <div>Domain risk: {{ domain.score.overall_threat_level }}</div>
           </div>
         </template>
       </Card>

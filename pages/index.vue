@@ -1,6 +1,9 @@
 <script setup>
-const { data: user } = await useSendmarcData(`api/user`);
-const { data: domains } = await useSendmarcData(`api/customers/${user.value.customer_uuid}/domains`);
+const { data: user, error }
+    = await useSendmarcData(`api/user`);
+
+const { data: domains }
+    = await useSendmarcData(`api/customers/${user.value.customer_uuid}/domains`);
 
 const config = useRuntimeConfig();
 </script>
