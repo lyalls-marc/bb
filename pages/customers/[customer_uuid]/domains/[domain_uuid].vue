@@ -3,15 +3,15 @@ const { params } = useRoute();
 
 const statsEndpoints = {
   domain: `api/customers/${params.customer_uuid}/domains/${params.domain_uuid}`,
-  domains: `api/customers/${params.customer_uuid}/domains`,
-  countryTotals: `api/statistics/domains/${params.domain_uuid}/countries?start_date=2010-01-01&end_date=2026-01-01`,
-  senderTotals: `api/statistics/domains/${params.domain_uuid}/senders?start_date=2010-01-01&end_date=2026-01-01`,
-  timeline: `api/statistics/domains/${params.domain_uuid}/timeline?start_date=2010-01-01&end_date=2026-01-01`
+  totals: `api/statistics/domains/${params.domain_uuid}/totals`,
+  countryTotals: `api/statistics/domains/${params.domain_uuid}/countries`,
+  senderTotals: `api/statistics/domains/${params.domain_uuid}/senders`,
+  timeline: `api/statistics/domains/${params.domain_uuid}/timeline`
 };
 
 const results = await Promise.all(Object.values(statsEndpoints).map(useSendmarcData));
 
-const { domain, countryTotals, senderTotals, timeline } = Object.fromEntries(
+const { domain, totals,  countryTotals, senderTotals, timeline } = Object.fromEntries(
     Object.keys(statsEndpoints).map((key, i) => [key, results[i].data])
 );
 
@@ -126,6 +126,26 @@ const config = useRuntimeConfig();
             <div>Domain score: {{ domain.score.overall_score }}</div>
             <div>Domain rating:  {{ domain.score.overall_rating }}</div>
             <div>Domain risk: {{ domain.score.overall_threat_level }}</div>
+          </div>
+        </template>
+      </Card>
+      <Card class="w-full">
+        <template #title>
+          <div class="flex items-center justify-between">
+            Domain totals
+            <Button
+                as="a"
+                :href="`${config.public.apiUrl}/docs/api#/operations/statistics.domain.totals`"
+                target="_blank"
+                rel="noopener"
+                label="docs"
+                size="small"
+            />
+          </div>
+        </template>
+        <template #content>
+          <div class="flex flex-col">
+            <pre>{{ totals }}</pre>
           </div>
         </template>
       </Card>
